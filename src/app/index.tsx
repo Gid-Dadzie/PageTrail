@@ -1,61 +1,81 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { BottomTabInset, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/auth-context';
+import {
+  addOrUpdateShelfEntry,
+  removeShelfEntry,
+  ShelfEntry,
+  subscribeToShelf,
+} from '@/services/shelves';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+export default function ShelvesScreen() {
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<ShelfEntry[]>([]);
 
-export default function HomeScreen() {
+  useEffect(() => {
+    if (!user) return;
+    const unsub = subscribeToShelf(user.uid, setEntries);
+    return unsub;
+  }, [user]);
+
+  const handleAddTestBook = async () => {
+    if (!user) return;
+    await addOrUpdateShelfEntry(user.uid, {
+      bookId: 'test-book-1',
+      title: 'The Midnight Library',
+      authors: ['Matt Haig'],
+      coverUrl: '',
+      status: 'wantToRead',
+      progress: 0,
+      totalPages: 288,
+      rating: 0,
+    });
+  };
+
+  const handleRemove = async (bookId: string) => {
+    if (!user) return;
+    await removeShelfEntry(user.uid, bookId);
+  };
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+        <ThemedText type="title">Your Shelves</ThemedText>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Pressable onPress={handleAddTestBook} style={styles.addButton}>
+          <ThemedView type="backgroundElement" style={styles.addButtonInner}>
+            <ThemedText type="link">+ Add test book</ThemedText>
+          </ThemedView>
+        </Pressable>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
+        <FlatList
+          data={entries}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <ThemedText type="small" themeColor="textSecondary">
+              No books yet. Tap &quot;Add test book&quot; above to try it out.
+            </ThemedText>
+          }
+          renderItem={({ item }) => (
+            <ThemedView type="backgroundElement" style={styles.bookRow}>
+              <ThemedView style={styles.bookInfo}>
+                <ThemedText type="smallBold">{item.title}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {item.authors.join(', ')} · {item.status}
+                </ThemedText>
+              </ThemedView>
+              <Pressable onPress={() => handleRemove(item.bookId)}>
+                <ThemedText type="link">Remove</ThemedText>
+              </Pressable>
+            </ThemedView>
+          )}
+        />
       </SafeAreaView>
     </ThemedView>
   );
@@ -64,35 +84,33 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
   safeArea: {
     flex: 1,
     paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
+    paddingTop: Spacing.six,
     paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
     gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
+  },
+  addButton: {
+    alignSelf: 'flex-start',
+  },
+  addButtonInner: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.two,
     borderRadius: Spacing.four,
+  },
+  list: {
+    gap: Spacing.two,
+  },
+  bookRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.three,
+    borderRadius: Spacing.three,
+  },
+  bookInfo: {
+    gap: Spacing.one,
   },
 });
