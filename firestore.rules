@@ -1,0 +1,107 @@
+rules_version = '2';
+
+// PageTrail security rules.
+//
+// Scope note: PageTrail is currently Firebase-only, so clients write their own
+// PageCoins balance and ledger. These rules constrain *who* may write, not
+// whether a balance is honest — a determined user could grant themselves coins
+// by writing to their own document. Moving coin mutations behind the Node/Express
+// API in the proposal (or Cloud Functions) is what would make the economy
+// tamper-proof; until then `coins` is trusted client state.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Profiles are readable by any signed-in reader so the feed and exchange
+    // can show who wrote a post or owns a copy.
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow create, update: if isSelf(userId);
+      allow delete: if false;
+
+      // Shelves are private to their owner.
+      match /shelfEntries/{entryId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      // The ledger is append-only: entries may be created but never rewritten,
+      // so a balance always remains explainable from its history.
+      match /coinLedger/{entryId} {
+        allow read: if isSelf(userId);
+        allow create: if isSelf(userId);
+        allow update, delete: if false;
+      }
+    }
+
+    match /posts/{postId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+
+      // Anyone signed in may like a post or bump its comment count, but only
+      // the author may edit the post's own content.
+      allow update: if signedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['likedBy', 'commentCount'])
+      );
+
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      }
+    }
+
+    // A passport travels with a physical copy, so any signed-in reader can read
+    // it — the page gate that hides notes is applied in the client, not here.
+    match /passports/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.currentOwnerId == request.auth.uid;
+      // Only the current owner may hand the copy on to the next reader.
+      allow update: if signedIn() && resource.data.currentOwnerId == request.auth.uid;
+      allow delete: if false;
+
+      // Notes are permanent: the provenance trail is the point of the feature.
+      match /notes/{noteId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /listings/{listingId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Discussion forum. Threads are readable by any signed-in reader; only the
+    // author may edit or delete their own thread. Anyone may bump the reply
+    // counters, which is how posting a reply keeps the list ordered by activity.
+    match /forumThreads/{threadId} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      allow update: if signedIn() && (
+        resource.data.authorId == request.auth.uid ||
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['replyCount', 'lastReplyAt'])
+      );
+
+      // Replies are permanent; an author may not rewrite the record of a debate.
+      match /replies/{replyId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

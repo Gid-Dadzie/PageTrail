@@ -1,4 +1,15 @@
 {
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.expo.dev)",
+      "WebFetch(domain:expo.dev)",
+      "Bash(npx expo *)",
+      "Bash(npx expo-doctor *)",
+      "Bash(node -e \"const p=require\\('./node_modules/expo-router/package.json'\\); console.log\\(JSON.stringify\\(p.exports,null,2\\)\\); console.log\\('version', p.version\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -s \"https://www.googleapis.com/books/v1/volumes?q=subject:%22Romance%22&maxResults=2&printType=books\")"
+    ]
+  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }

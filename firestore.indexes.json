@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "//": "subscribeToMyListings filters by ownerId and orders by createdAt, which Firestore cannot serve from single-field indexes alone.",
+      "collectionGroup": "listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

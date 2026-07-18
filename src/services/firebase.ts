@@ -1,8 +1,8 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
-// @ts-ignore - getReactNativePersistence exists at runtime; Firebase's TS types don't expose it yet
-import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
+import { initializeAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+
+import { authPersistence } from './auth-persistence';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAdmC6alSrY9aU966bHphWY-2cVcIH0MTQ',
@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
+  persistence: authPersistence,
 });
 
 export const db = getFirestore(app);
