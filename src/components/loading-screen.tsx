@@ -2,7 +2,8 @@ import { Image } from 'expo-image';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors, Spacing } from '@/constants/theme';
+import { Palette, Spacing } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 
 /**
  * Full-screen branded loader.
@@ -12,6 +13,9 @@ import { Colors, Spacing } from '@/constants/theme';
  * short window after sign-in before the profile snapshot arrives.
  */
 export function LoadingScreen({ message }: { message?: string }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
+
   return (
     <View style={styles.root}>
       <Image
@@ -22,7 +26,7 @@ export function LoadingScreen({ message }: { message?: string }) {
       <ThemedText type="heading" themeColor="primary">
         PageTrail
       </ThemedText>
-      <ActivityIndicator color={Colors.primary} style={styles.spinner} />
+      <ActivityIndicator color={theme.primary} style={styles.spinner} />
       {message ? (
         <ThemedText type="caption" themeColor="textTertiary">
           {message}
@@ -32,19 +36,20 @@ export function LoadingScreen({ message }: { message?: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.background,
-    gap: Spacing.three,
-  },
-  logo: {
-    width: 96,
-    height: 96,
-  },
-  spinner: {
-    marginTop: Spacing.two,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.background,
+      gap: Spacing.three,
+    },
+    logo: {
+      width: 96,
+      height: 96,
+    },
+    spinner: {
+      marginTop: Spacing.two,
+    },
+  });

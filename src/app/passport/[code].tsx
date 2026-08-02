@@ -9,9 +9,10 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { COIN_COSTS, earnCoins, spendCoins } from '@/services/pagecoins';
 import {
   addPassportNote,
@@ -24,6 +25,8 @@ import { ShelfEntry, subscribeToShelf } from '@/services/shelves';
 import { relativeTime } from '@/utils/format';
 
 export default function PassportScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const { code } = useLocalSearchParams<{ code: string }>();
   const { user, profile } = useAuth();
 
@@ -48,7 +51,7 @@ export default function PassportScreen() {
         <View style={styles.padded}>
           <ScreenHeader title="Book Passport" />
         </View>
-        <ActivityIndicator color={Colors.primary} style={styles.pad} />
+        <ActivityIndicator color={theme.primary} style={styles.pad} />
       </SafeAreaView>
     );
   }
@@ -168,7 +171,7 @@ export default function PassportScreen() {
               disabled={!canUnlock || busy}
               onPress={unlockEarly}
               style={[styles.unlockBanner, !canUnlock && styles.disabled]}>
-              <Ionicons name="lock-closed" size={14} color={Colors.primary} />
+              <Ionicons name="lock-closed" size={14} color={theme.primary} />
               <ThemedText type="caption" themeColor={canUnlock ? 'primary' : 'textTertiary'}>
                 {canUnlock
                   ? `${lockedCount} sealed until you read further — unlock now for ${COIN_COSTS.passportUnlock} 🪙`
@@ -192,7 +195,7 @@ export default function PassportScreen() {
                   <ThemedText type="small">{note.text}</ThemedText>
                 ) : (
                   <View style={styles.sealed}>
-                    <Ionicons name="lock-closed-outline" size={13} color={Colors.textTertiary} />
+                    <Ionicons name="lock-closed-outline" size={13} color={theme.textTertiary} />
                     <ThemedText type="caption" themeColor="textTertiary">
                       Sealed until page {note.page}
                     </ThemedText>
@@ -238,93 +241,94 @@ export default function PassportScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  padded: {
-    padding: Spacing.four,
-  },
-  hero: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-  },
-  heroMeta: {
-    flex: 1,
-    gap: Spacing.one,
-    justifyContent: 'center',
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  sectionHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  ownerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  ownerDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flex: {
-    flex: 1,
-  },
-  unlockBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    padding: Spacing.two,
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.primarySubtle,
-  },
-  disabled: {
-    opacity: 0.7,
-  },
-  note: {
-    gap: Spacing.one,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  noteLocked: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
-  noteHead: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sealed: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  card: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  pad: {
-    padding: Spacing.four,
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    padded: {
+      padding: Spacing.four,
+    },
+    hero: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+    },
+    heroMeta: {
+      flex: 1,
+      gap: Spacing.one,
+      justifyContent: 'center',
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    sectionHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    ownerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+    },
+    ownerDot: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: c.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    flex: {
+      flex: 1,
+    },
+    unlockBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+      padding: Spacing.two,
+      borderRadius: Radius.sm,
+      backgroundColor: c.primarySubtle,
+    },
+    disabled: {
+      opacity: 0.7,
+    },
+    note: {
+      gap: Spacing.one,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    noteLocked: {
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.background,
+    },
+    noteHead: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    sealed: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.one,
+    },
+    card: {
+      gap: Spacing.two,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    pad: {
+      padding: Spacing.four,
+      textAlign: 'center',
+    },
+  });

@@ -6,11 +6,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { updateProfile } from '@/services/profile';
 
 export default function CompleteProfileScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user, profile } = useAuth();
   const [fullName, setFullName] = useState(profile?.fullName ?? '');
   const [phone, setPhone] = useState(profile?.phone ?? '');
@@ -111,42 +113,43 @@ export default function CompleteProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-    flexGrow: 1,
-  },
-  header: {
-    gap: Spacing.two,
-  },
-  avatarWrap: {
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  form: {
-    gap: Spacing.three,
-    flex: 1,
-  },
-  actions: {
-    gap: Spacing.two,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    flex: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+      flexGrow: 1,
+    },
+    header: {
+      gap: Spacing.two,
+    },
+    avatarWrap: {
+      alignItems: 'center',
+    },
+    avatar: {
+      width: 96,
+      height: 96,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 2,
+      borderColor: c.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    form: {
+      gap: Spacing.three,
+      flex: 1,
+    },
+    actions: {
+      gap: Spacing.two,
+    },
+  });

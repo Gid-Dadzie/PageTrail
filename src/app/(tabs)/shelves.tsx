@@ -7,13 +7,15 @@ import { BookCover } from '@/components/book-cover';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { StarRating } from '@/components/ui/star-rating';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { SHELF_LABELS, ShelfEntry, ShelfStatus, subscribeToShelf } from '@/services/shelves';
 
 const TABS: ShelfStatus[] = ['reading', 'read', 'wantToRead'];
 
 export default function ShelvesScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user } = useAuth();
   const [entries, setEntries] = useState<ShelfEntry[]>([]);
   const [active, setActive] = useState<ShelfStatus>('reading');
@@ -82,6 +84,7 @@ export default function ShelvesScreen() {
 }
 
 function ShelfRow({ entry }: { entry: ShelfEntry }) {
+  const styles = useThemedStyles(stylesheet);
   const pct = entry.totalPages > 0 ? entry.progress / entry.totalPages : 0;
 
   return (
@@ -118,6 +121,7 @@ function ShelfRow({ entry }: { entry: ShelfEntry }) {
 }
 
 function EmptyShelf({ status }: { status: ShelfStatus }) {
+  const styles = useThemedStyles(stylesheet);
   const copy: Record<ShelfStatus, string> = {
     reading: 'Nothing on the go. Start a book from Discover and it will show up here.',
     read: 'No finished books yet. Books you complete land here — and earn PageCoins.',
@@ -140,71 +144,72 @@ function EmptyShelf({ status }: { status: ShelfStatus }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    paddingTop: Spacing.two,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.four,
-  },
-  tabs: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-  },
-  tab: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-  },
-  tabActive: {
-    backgroundColor: Colors.primary,
-  },
-  list: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-    padding: Spacing.two,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  rowMeta: {
-    flex: 1,
-    gap: Spacing.one,
-    justifyContent: 'center',
-  },
-  progressWrap: {
-    gap: Spacing.one,
-    paddingTop: Spacing.one,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.two,
-    padding: Spacing.four,
-  },
-  emptyText: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      paddingTop: Spacing.two,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.four,
+    },
+    tabs: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+    },
+    tab: {
+      paddingHorizontal: Spacing.three,
+      paddingVertical: Spacing.two,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+    },
+    tabActive: {
+      backgroundColor: c.primary,
+    },
+    list: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      flexGrow: 1,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+      padding: Spacing.two,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    rowMeta: {
+      flex: 1,
+      gap: Spacing.one,
+      justifyContent: 'center',
+    },
+    progressWrap: {
+      gap: Spacing.one,
+      paddingTop: Spacing.one,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.two,
+      padding: Spacing.four,
+    },
+    emptyText: {
+      textAlign: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

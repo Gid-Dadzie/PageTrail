@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookCard } from '@/components/book-card';
 import { ThemedText } from '@/components/themed-text';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { Colors } from '@/constants/theme';
+import { MaxContentWidth, Palette, Spacing } from '@/constants/theme';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { fetchFreeToRead } from '@/services/books';
 
 /**
@@ -14,6 +14,8 @@ import { fetchFreeToRead } from '@/services/books';
  * button — reached from Home's "See all" browse screen and the Discover tab.
  */
 export default function FreeToReadScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const books = useAsync((signal) => fetchFreeToRead(30, signal), []);
 
   return (
@@ -23,7 +25,7 @@ export default function FreeToReadScreen() {
       </View>
 
       {books.loading ? (
-        <ActivityIndicator color={Colors.primary} style={styles.pad} />
+        <ActivityIndicator color={theme.primary} style={styles.pad} />
       ) : books.error ? (
         <ThemedText type="small" themeColor="danger" style={styles.pad}>
           {books.error}
@@ -53,34 +55,35 @@ export default function FreeToReadScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-    paddingBottom: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  grid: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  row: {
-    gap: Spacing.three,
-  },
-  hint: {
-    paddingBottom: Spacing.three,
-  },
-  pad: {
-    padding: Spacing.four,
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+      paddingBottom: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    grid: {
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    row: {
+      gap: Spacing.three,
+    },
+    hint: {
+      paddingBottom: Spacing.three,
+    },
+    pad: {
+      padding: Spacing.four,
+      textAlign: 'center',
+    },
+  });

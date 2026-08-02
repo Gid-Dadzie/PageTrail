@@ -1,15 +1,35 @@
 /**
  * PageTrail design tokens.
  *
- * The product design is dark-only, so there is a single palette rather than a
- * light/dark pair. `useTheme()` returns this object.
+ * Colours come in a light/dark pair with identical keys, so components only
+ * ever name a role (`backgroundElement`, `textSecondary`) and never a literal.
+ * `useTheme()` returns whichever palette is active; `useThemedStyles()` rebuilds
+ * a stylesheet when it changes.
  */
 
 import '@/global.css';
 
 import { Platform } from 'react-native';
 
-export const Colors = {
+/** Every colour role in the app. Both palettes implement it in full. */
+export type Palette = {
+  background: string;
+  backgroundElement: string;
+  backgroundSelected: string;
+  border: string;
+  primary: string;
+  primaryPressed: string;
+  primarySubtle: string;
+  onPrimary: string;
+  text: string;
+  textSecondary: string;
+  textTertiary: string;
+  star: string;
+  success: string;
+  danger: string;
+};
+
+export const DarkColors: Palette = {
   /** App canvas. */
   background: '#101014',
   /** Cards, inputs, and other raised surfaces. */
@@ -36,9 +56,38 @@ export const Colors = {
   star: '#FFC02D',
   success: '#3DD68C',
   danger: '#F5565B',
-} as const;
+};
 
-export type ThemeColor = keyof typeof Colors;
+/**
+ * Light counterpart. The brand amber is deepened from `#F5A524` so it still
+ * passes contrast when used as text or an icon on a white surface — the same
+ * hue, a darker tone.
+ */
+export const LightColors: Palette = {
+  background: '#F7F7FA',
+  backgroundElement: '#FFFFFF',
+  backgroundSelected: '#ECECF2',
+  border: '#E3E3EA',
+
+  primary: '#A15703',
+  primaryPressed: '#834602',
+  primarySubtle: '#FCEFD9',
+  onPrimary: '#FFFFFF',
+
+  text: '#15151A',
+  textSecondary: '#5C5C68',
+  textTertiary: '#757581',
+
+  star: '#C08400',
+  success: '#12855A',
+  danger: '#D22F35',
+};
+
+export type ThemeColor = keyof Palette;
+
+export const Palettes = { light: LightColors, dark: DarkColors } as const;
+
+export type ColorSchemeName = keyof typeof Palettes;
 
 export const Fonts = Platform.select({
   ios: {

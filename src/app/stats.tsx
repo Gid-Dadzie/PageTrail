@@ -5,12 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { computeStats, ShelfEntry, subscribeToShelf } from '@/services/shelves';
 import { monthLabel, plural } from '@/utils/format';
 
 export default function StatsScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user } = useAuth();
   const [entries, setEntries] = useState<ShelfEntry[]>([]);
 
@@ -97,6 +99,7 @@ export default function StatsScreen() {
 }
 
 function Tile({ value, label, caption }: { value: string; label: string; caption: string }) {
+  const styles = useThemedStyles(stylesheet);
   return (
     <View style={styles.tile}>
       <ThemedText type="subtitle" themeColor="primary">
@@ -110,44 +113,45 @@ function Tile({ value, label, caption }: { value: string; label: string; caption
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  tiles: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  tile: {
-    flex: 1,
-    alignItems: 'center',
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  barRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  barLabel: {
-    width: 84,
-  },
-  barTrack: {
-    flex: 1,
-  },
-  barValue: {
-    width: 24,
-    textAlign: 'right',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    tiles: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+    },
+    tile: {
+      flex: 1,
+      alignItems: 'center',
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    barRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+    },
+    barLabel: {
+      width: 84,
+    },
+    barTrack: {
+      flex: 1,
+    },
+    barValue: {
+      width: 24,
+      textAlign: 'right',
+    },
+  });

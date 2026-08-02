@@ -2,7 +2,8 @@ import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Palette, Radius, Spacing } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 
 export type BookCoverProps = {
   uri: string;
@@ -15,6 +16,7 @@ export type BookCoverProps = {
 /** Cover art with a readable fallback when the catalogue has no image. */
 export function BookCover({ uri, title, width, aspectRatio = 2 / 3 }: BookCoverProps) {
   const height = width / aspectRatio;
+  const styles = useThemedStyles(stylesheet);
 
   if (!uri) {
     return (
@@ -37,17 +39,18 @@ export function BookCover({ uri, title, width, aspectRatio = 2 / 3 }: BookCoverP
   );
 }
 
-const styles = StyleSheet.create({
-  image: {
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.backgroundElement,
-  },
-  fallback: {
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    padding: Spacing.two,
-    justifyContent: 'flex-end',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    image: {
+      borderRadius: Radius.sm,
+      backgroundColor: c.backgroundElement,
+    },
+    fallback: {
+      borderRadius: Radius.sm,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+      padding: Spacing.two,
+      justifyContent: 'flex-end',
+    },
+  });

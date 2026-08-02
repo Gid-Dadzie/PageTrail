@@ -9,13 +9,15 @@ import { BookCover } from '@/components/book-cover';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { GENRES, genreBySlug } from '@/constants/genres';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { fetchBooksByGenre, fetchTopCharts } from '@/services/books';
 import { ShelfEntry, subscribeToShelf } from '@/services/shelves';
 
 export default function HomeScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user, profile } = useAuth();
   const [shelf, setShelf] = useState<ShelfEntry[]>([]);
 
@@ -106,6 +108,7 @@ export default function HomeScreen() {
 }
 
 function CoinPill({ coins }: { coins: number }) {
+  const styles = useThemedStyles(stylesheet);
   return (
     <Link href="/(tabs)/profile" asChild>
       <Pressable
@@ -129,6 +132,8 @@ function IconButton({
   href: string;
   label: string;
 }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
   return (
     <Pressable
@@ -136,7 +141,7 @@ function IconButton({
       accessibilityLabel={label}
       onPress={() => router.push(href as never)}
       style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
-      <Ionicons name={name} size={20} color={Colors.text} />
+      <Ionicons name={name} size={20} color={theme.text} />
     </Pressable>
   );
 }
@@ -152,6 +157,7 @@ function Section({
   actionHref?: string;
   children: React.ReactNode;
 }) {
+  const styles = useThemedStyles(stylesheet);
   return (
     <View style={styles.section}>
       <View style={styles.sectionHead}>
@@ -172,10 +178,12 @@ function Section({
 }
 
 function BookRail({ state }: { state: ReturnType<typeof useAsync<Awaited<ReturnType<typeof fetchTopCharts>>>> }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   if (state.loading) {
     return (
       <View style={styles.railPlaceholder}>
-        <ActivityIndicator color={Colors.primary} />
+        <ActivityIndicator color={theme.primary} />
       </View>
     );
   }
@@ -203,6 +211,7 @@ function BookRail({ state }: { state: ReturnType<typeof useAsync<Awaited<ReturnT
 }
 
 function ContinueCard({ entry }: { entry: ShelfEntry }) {
+  const styles = useThemedStyles(stylesheet);
   const pct = entry.totalPages > 0 ? entry.progress / entry.totalPages : 0;
 
   return (
@@ -227,85 +236,86 @@ function ContinueCard({ entry }: { entry: ShelfEntry }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    gap: Spacing.four,
-    paddingVertical: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.one,
-  },
-  brandRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  coinPill: {
-    backgroundColor: Colors.primarySubtle,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
-  },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  sectionHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.four,
-  },
-  rail: {
-    gap: Spacing.three,
-    paddingHorizontal: Spacing.four,
-  },
-  railPlaceholder: {
-    height: 90,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  genrePill: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  continueCard: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    width: 240,
-    padding: Spacing.two,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  continueMeta: {
-    flex: 1,
-    gap: Spacing.one,
-    justifyContent: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    content: {
+      gap: Spacing.four,
+      paddingVertical: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      gap: Spacing.one,
+    },
+    brandRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+    },
+    coinPill: {
+      backgroundColor: c.primarySubtle,
+      paddingHorizontal: Spacing.two,
+      paddingVertical: Spacing.one,
+      borderRadius: Radius.pill,
+    },
+    iconButton: {
+      width: 38,
+      height: 38,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    sectionHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.four,
+    },
+    rail: {
+      gap: Spacing.three,
+      paddingHorizontal: Spacing.four,
+    },
+    railPlaceholder: {
+      height: 90,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    genrePill: {
+      paddingHorizontal: Spacing.three,
+      paddingVertical: Spacing.two,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    continueCard: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+      width: 240,
+      padding: Spacing.two,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    continueMeta: {
+      flex: 1,
+      gap: Spacing.one,
+      justifyContent: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

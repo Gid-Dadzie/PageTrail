@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import {
   boostListing,
   createListing,
@@ -30,6 +31,7 @@ const KINDS: { value: ListingKind; label: string }[] = [
 ];
 
 export default function ExchangeScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { bookId } = useLocalSearchParams<{ bookId?: string }>();
   const { user, profile } = useAuth();
 
@@ -113,6 +115,7 @@ function ComposeListing({
   seed?: ShelfEntry;
   onDone: () => void;
 }) {
+  const styles = useThemedStyles(stylesheet);
   const { user, profile } = useAuth();
   const [selectedId, setSelectedId] = useState(initialBookId ?? '');
   const [kind, setKind] = useState<ListingKind>('exchange');
@@ -272,6 +275,7 @@ function ListingRow({
   viewerId: string;
   coins: number;
 }) {
+  const styles = useThemedStyles(stylesheet);
   const mine = listing.ownerId === viewerId;
   const canBoost = mine && !listing.boosted && coins >= COIN_COSTS.exchangePriority;
 
@@ -326,98 +330,99 @@ function ListingRow({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-  },
-  intro: {
-    paddingBottom: Spacing.two,
-  },
-  list: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  form: {
-    gap: Spacing.three,
-    padding: Spacing.four,
-  },
-  rail: {
-    gap: Spacing.two,
-  },
-  candidate: {
-    width: 76,
-    padding: Spacing.one,
-    borderRadius: Radius.sm,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    gap: Spacing.one,
-  },
-  candidateActive: {
-    borderColor: Colors.primary,
-  },
-  candidateTitle: {
-    textAlign: 'center',
-  },
-  kindRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  successCard: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.success,
-    alignItems: 'center',
-  },
-  listingRow: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-    padding: Spacing.two,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  listingBoosted: {
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  listingMeta: {
-    flex: 1,
-    gap: 2,
-  },
-  listingActions: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-    paddingTop: Spacing.one,
-  },
-  boostTag: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.two,
-    paddingVertical: 2,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primary,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+    },
+    intro: {
+      paddingBottom: Spacing.two,
+    },
+    list: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      flexGrow: 1,
+    },
+    form: {
+      gap: Spacing.three,
+      padding: Spacing.four,
+    },
+    rail: {
+      gap: Spacing.two,
+    },
+    candidate: {
+      width: 76,
+      padding: Spacing.one,
+      borderRadius: Radius.sm,
+      borderWidth: 1,
+      borderColor: 'transparent',
+      gap: Spacing.one,
+    },
+    candidateActive: {
+      borderColor: c.primary,
+    },
+    candidateTitle: {
+      textAlign: 'center',
+    },
+    kindRow: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+    },
+    successCard: {
+      gap: Spacing.two,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.success,
+      alignItems: 'center',
+    },
+    listingRow: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+      padding: Spacing.two,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    listingBoosted: {
+      borderWidth: 1,
+      borderColor: c.primary,
+    },
+    listingMeta: {
+      flex: 1,
+      gap: 2,
+    },
+    listingActions: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+      paddingTop: Spacing.one,
+    },
+    boostTag: {
+      alignSelf: 'flex-start',
+      paddingHorizontal: Spacing.two,
+      paddingVertical: 2,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primary,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: Spacing.four,
+    },
+    centered: {
+      textAlign: 'center',
+    },
+  });

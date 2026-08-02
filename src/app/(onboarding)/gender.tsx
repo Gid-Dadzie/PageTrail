@@ -6,8 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { Gender, updateProfile } from '@/services/profile';
 
 const OPTIONS: { value: Gender; label: string }[] = [
@@ -17,6 +18,7 @@ const OPTIONS: { value: Gender; label: string }[] = [
 ];
 
 export default function GenderScreen() {
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
   const { user, profile } = useAuth();
   const [selected, setSelected] = useState<Gender | ''>(profile?.gender ?? '');
@@ -86,60 +88,61 @@ export default function GenderScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    gap: Spacing.two,
-  },
-  options: {
-    gap: Spacing.two,
-    flex: 1,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.backgroundElement,
-  },
-  optionActive: {
-    borderColor: Colors.primary,
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-  radio: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: Colors.textTertiary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioActive: {
-    borderColor: Colors.primary,
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.primary,
-  },
-  actions: {
-    gap: Spacing.two,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    content: {
+      flex: 1,
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      gap: Spacing.two,
+    },
+    options: {
+      gap: Spacing.two,
+      flex: 1,
+    },
+    option: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.backgroundElement,
+    },
+    optionActive: {
+      borderColor: c.primary,
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+    radio: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 2,
+      borderColor: c.textTertiary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    radioActive: {
+      borderColor: c.primary,
+    },
+    radioDot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: c.primary,
+    },
+    actions: {
+      gap: Spacing.two,
+    },
+  });

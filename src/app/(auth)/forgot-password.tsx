@@ -7,7 +7,8 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { auth } from '@/services/firebase';
 import { authErrorMessage } from '@/utils/auth-errors';
 
@@ -20,6 +21,7 @@ import { authErrorMessage } from '@/utils/auth-errors';
  * reset email so the flow actually works end to end.
  */
 export default function ForgotPasswordScreen() {
+  const styles = useThemedStyles(stylesheet);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -99,47 +101,48 @@ export default function ForgotPasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-    flexGrow: 1,
-    flex: 1,
-  },
-  header: {
-    gap: Spacing.two,
-  },
-  form: {
-    gap: Spacing.three,
-    flex: 1,
-  },
-  successBody: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.three,
-  },
-  badge: {
-    width: 96,
-    height: 96,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeGlyph: {
-    fontSize: 44,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    flex: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+      flexGrow: 1,
+      flex: 1,
+    },
+    header: {
+      gap: Spacing.two,
+    },
+    form: {
+      gap: Spacing.three,
+      flex: 1,
+    },
+    successBody: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.three,
+    },
+    badge: {
+      width: 96,
+      height: 96,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primarySubtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    badgeGlyph: {
+      fontSize: 44,
+    },
+    centered: {
+      textAlign: 'center',
+    },
+  });

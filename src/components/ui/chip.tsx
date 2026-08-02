@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Palette, Radius, Spacing } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 
 export type ChipProps = {
   label: string;
@@ -11,6 +12,8 @@ export type ChipProps = {
 
 /** Selectable pill used for genres, age ranges, and filters. */
 export function Chip({ label, selected = false, onPress }: ChipProps) {
+  const styles = useThemedStyles(stylesheet);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -28,22 +31,23 @@ export function Chip({ label, selected = false, onPress }: ChipProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  chip: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-    borderWidth: 1,
-  },
-  chipIdle: {
-    backgroundColor: 'transparent',
-    borderColor: Colors.primary,
-  },
-  chipSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    chip: {
+      paddingHorizontal: Spacing.three,
+      paddingVertical: Spacing.two,
+      borderRadius: Radius.pill,
+      borderWidth: 1,
+    },
+    chipIdle: {
+      backgroundColor: 'transparent',
+      borderColor: c.primary,
+    },
+    chipSelected: {
+      backgroundColor: c.primary,
+      borderColor: c.primary,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+  });

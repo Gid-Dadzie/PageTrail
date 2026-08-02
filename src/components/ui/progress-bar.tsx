@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Colors, Radius } from '@/constants/theme';
+import { Palette, Radius } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 
 export type ProgressBarProps = {
   /** Completion from 0 to 1; values outside the range are clamped. */
@@ -10,6 +11,7 @@ export type ProgressBarProps = {
 
 export function ProgressBar({ value, height = 6 }: ProgressBarProps) {
   const clamped = Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+  const styles = useThemedStyles(stylesheet);
 
   return (
     <View
@@ -21,16 +23,17 @@ export function ProgressBar({ value, height = 6 }: ProgressBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  track: {
-    backgroundColor: Colors.backgroundSelected,
-    borderRadius: Radius.pill,
-    overflow: 'hidden',
-    width: '100%',
-  },
-  fill: {
-    height: '100%',
-    backgroundColor: Colors.primary,
-    borderRadius: Radius.pill,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    track: {
+      backgroundColor: c.backgroundSelected,
+      borderRadius: Radius.pill,
+      overflow: 'hidden',
+      width: '100%',
+    },
+    fill: {
+      height: '100%',
+      backgroundColor: c.primary,
+      borderRadius: Radius.pill,
+    },
+  });

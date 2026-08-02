@@ -5,14 +5,23 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { ThemeToggleButton } from '@/components/ui/theme-toggle';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const styles = useThemedStyles(stylesheet);
 
   return (
     <View style={styles.root}>
       <View style={styles.hero}>
+        {/* The only pre-sign-in appearance control — Profile is unreachable
+            until the user has an account. */}
+        <SafeAreaView edges={['top']} style={styles.heroToggle}>
+          <ThemeToggleButton />
+        </SafeAreaView>
+
         <Image
           source={require('@/assets/images/logo-glow.png')}
           style={styles.heroGlow}
@@ -47,39 +56,46 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  hero: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.backgroundElement,
-  },
-  heroGlow: {
-    width: 180,
-    height: 180,
-  },
-  sheetWrap: {
-    backgroundColor: Colors.background,
-    borderTopLeftRadius: Radius.xl,
-    borderTopRightRadius: Radius.xl,
-    marginTop: -Radius.xl,
-  },
-  sheet: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  centered: {
-    textAlign: 'center',
-  },
-  actions: {
-    gap: Spacing.two,
-    marginTop: Spacing.two,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    hero: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.backgroundElement,
+    },
+    heroToggle: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      padding: Spacing.three,
+    },
+    heroGlow: {
+      width: 180,
+      height: 180,
+    },
+    sheetWrap: {
+      backgroundColor: c.background,
+      borderTopLeftRadius: Radius.xl,
+      borderTopRightRadius: Radius.xl,
+      marginTop: -Radius.xl,
+    },
+    sheet: {
+      padding: Spacing.four,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    centered: {
+      textAlign: 'center',
+    },
+    actions: {
+      gap: Spacing.two,
+      marginTop: Spacing.two,
+    },
+  });

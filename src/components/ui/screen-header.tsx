@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ProgressBar } from '@/components/ui/progress-bar';
-import { Colors, Spacing } from '@/constants/theme';
+import { Palette, Spacing } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/use-theme';
 
 export type ScreenHeaderProps = {
   title?: string;
@@ -28,6 +29,7 @@ export function ScreenHeader({
   fallbackHref = '/',
 }: ScreenHeaderProps) {
   const router = useRouter();
+  const styles = useThemedStyles(stylesheet);
 
   const handleBack = () => {
     if (onBack) return onBack();
@@ -61,32 +63,33 @@ export function ScreenHeader({
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    minHeight: 44,
-  },
-  back: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.backgroundElement,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  title: {
-    flex: 1,
-  },
-  progressWrap: {
-    flex: 1,
-  },
-  right: {
-    minWidth: 36,
-    alignItems: 'flex-end',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.three,
+      minHeight: 44,
+    },
+    back: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.backgroundElement,
+    },
+    pressed: {
+      opacity: 0.7,
+    },
+    title: {
+      flex: 1,
+    },
+    progressWrap: {
+      flex: 1,
+    },
+    right: {
+      minWidth: 36,
+      alignItems: 'flex-end',
+    },
+  });

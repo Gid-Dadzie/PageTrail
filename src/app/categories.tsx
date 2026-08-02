@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { GENRES } from '@/constants/genres';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -40,6 +41,8 @@ const GENRE_ICONS: Record<string, IconName> = {
  * the user with no way back.
  */
 export default function CategoriesScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
 
   return (
@@ -55,7 +58,7 @@ export default function CategoriesScreen() {
           onPress={() => router.push('/free')}
           style={({ pressed }) => [styles.freeBanner, pressed && styles.pressed]}>
           <View style={styles.freeIcon}>
-            <Ionicons name="book" size={20} color={Colors.onPrimary} />
+            <Ionicons name="book" size={20} color={theme.onPrimary} />
           </View>
           <View style={styles.freeBannerText}>
             <ThemedText type="smallBold" themeColor="onPrimary">
@@ -65,7 +68,7 @@ export default function CategoriesScreen() {
               Public-domain classics you can read right in the app
             </ThemedText>
           </View>
-          <Ionicons name="arrow-forward" size={18} color={Colors.onPrimary} />
+          <Ionicons name="arrow-forward" size={18} color={theme.onPrimary} />
         </Pressable>
 
         <ThemedText type="defaultBold" style={styles.sectionTitle}>
@@ -86,7 +89,7 @@ export default function CategoriesScreen() {
                 <Ionicons
                   name={GENRE_ICONS[genre.slug] ?? 'book'}
                   size={18}
-                  color={Colors.primary}
+                  color={theme.primary}
                 />
               </View>
               <ThemedText type="smallBold" numberOfLines={2} style={styles.tileLabel}>
@@ -100,73 +103,74 @@ export default function CategoriesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  freeBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.primary,
-  },
-  freeIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(26, 18, 6, 0.18)',
-  },
-  freeBannerText: {
-    flex: 1,
-    gap: 2,
-  },
-  sectionTitle: {
-    marginTop: Spacing.one,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    // space-between provides the column gutter; rowGap spaces the rows.
-    rowGap: Spacing.three,
-  },
-  tile: {
-    width: '48%',
-    height: 96,
-    padding: Spacing.three,
-    borderRadius: Radius.lg,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    justifyContent: 'space-between',
-  },
-  tileIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.primarySubtle,
-  },
-  tileLabel: {
-    marginTop: Spacing.one,
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    freeBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.three,
+      padding: Spacing.three,
+      borderRadius: Radius.lg,
+      backgroundColor: c.primary,
+    },
+    freeIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: Radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(26, 18, 6, 0.18)',
+    },
+    freeBannerText: {
+      flex: 1,
+      gap: 2,
+    },
+    sectionTitle: {
+      marginTop: Spacing.one,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      // space-between provides the column gutter; rowGap spaces the rows.
+      rowGap: Spacing.three,
+    },
+    tile: {
+      width: '48%',
+      height: 96,
+      padding: Spacing.three,
+      borderRadius: Radius.lg,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+      justifyContent: 'space-between',
+    },
+    tileIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: Radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.primarySubtle,
+    },
+    tileLabel: {
+      marginTop: Spacing.one,
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

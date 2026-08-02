@@ -6,7 +6,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Chip } from '@/components/ui/chip';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import {
   categoryLabel,
   FORUM_CATEGORIES,
@@ -19,6 +20,8 @@ import { relativeTime } from '@/utils/format';
 type Filter = ForumCategory | 'all';
 
 export default function ForumScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,7 +49,7 @@ export default function ForumScreen() {
             accessibilityLabel="Start a discussion"
             onPress={() => router.push('/forum/new')}
             style={({ pressed }) => [styles.newButton, pressed && styles.pressed]}>
-            <Ionicons name="add" size={18} color={Colors.onPrimary} />
+            <Ionicons name="add" size={18} color={theme.onPrimary} />
             <ThemedText type="captionBold" themeColor="onPrimary">
               New
             </ThemedText>
@@ -78,7 +81,7 @@ export default function ForumScreen() {
             loading ? null : (
               <View style={styles.empty}>
                 <View style={styles.emptyBadge}>
-                  <Ionicons name="chatbubbles-outline" size={32} color={Colors.textTertiary} />
+                  <Ionicons name="chatbubbles-outline" size={32} color={theme.textTertiary} />
                 </View>
                 <ThemedText type="defaultBold">No discussions yet</ThemedText>
                 <ThemedText type="small" themeColor="textTertiary" style={styles.centered}>
@@ -102,6 +105,8 @@ export default function ForumScreen() {
 }
 
 function ThreadRow({ thread }: { thread: Thread }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   return (
     <Link href={{ pathname: '/forum/[id]', params: { id: thread.id } }} asChild>
       <Pressable
@@ -132,7 +137,7 @@ function ThreadRow({ thread }: { thread: Thread }) {
             {thread.authorName}
           </ThemedText>
           <View style={styles.replyCount}>
-            <Ionicons name="chatbubble-outline" size={12} color={Colors.textTertiary} />
+            <Ionicons name="chatbubble-outline" size={12} color={theme.textTertiary} />
             <ThemedText type="caption" themeColor="textTertiary">
               {thread.replyCount}
             </ThemedText>
@@ -143,97 +148,98 @@ function ThreadRow({ thread }: { thread: Thread }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    paddingTop: Spacing.two,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.four,
-  },
-  newButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primary,
-  },
-  filtersScroll: {
-    // Keep the chip row at its natural height instead of stretching to fill
-    // the column, which would inflate the chips into tall pills.
-    flexGrow: 0,
-  },
-  filters: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-  },
-  list: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  row: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  rowTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  categoryTag: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: 2,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySubtle,
-  },
-  rowBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: Spacing.one,
-  },
-  replyCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.two,
-    padding: Spacing.four,
-  },
-  emptyBadge: {
-    width: 80,
-    height: 80,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.two,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      paddingTop: Spacing.two,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.four,
+    },
+    newButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.one,
+      paddingHorizontal: Spacing.three,
+      paddingVertical: Spacing.two,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primary,
+    },
+    filtersScroll: {
+      // Keep the chip row at its natural height instead of stretching to fill
+      // the column, which would inflate the chips into tall pills.
+      flexGrow: 0,
+    },
+    filters: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      alignItems: 'center',
+    },
+    list: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      flexGrow: 1,
+    },
+    row: {
+      gap: Spacing.two,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    rowTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    categoryTag: {
+      paddingHorizontal: Spacing.two,
+      paddingVertical: 2,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primarySubtle,
+    },
+    rowBottom: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingTop: Spacing.one,
+    },
+    replyCount: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.one,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.two,
+      padding: Spacing.four,
+    },
+    emptyBadge: {
+      width: 80,
+      height: 80,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: Spacing.two,
+    },
+    centered: {
+      textAlign: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

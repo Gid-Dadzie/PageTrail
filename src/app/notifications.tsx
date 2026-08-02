@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { CoinEntry, subscribeToLedger } from '@/services/pagecoins';
 import { Post, subscribeToFeed } from '@/services/feed';
 import { relativeTime } from '@/utils/format';
@@ -25,6 +26,8 @@ type Notification = {
  * needs a server to send from, so this is the in-app inbox only.
  */
 export default function NotificationsScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const { user } = useAuth();
   const [ledger, setLedger] = useState<CoinEntry[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -75,7 +78,7 @@ export default function NotificationsScreen() {
           ListEmptyComponent={
             <View style={styles.empty}>
               <View style={styles.emptyBadge}>
-                <Ionicons name="notifications-off-outline" size={34} color={Colors.textTertiary} />
+                <Ionicons name="notifications-off-outline" size={34} color={theme.textTertiary} />
               </View>
               <ThemedText type="defaultBold">Empty</ThemedText>
               <ThemedText type="small" themeColor="textTertiary" style={styles.centered}>
@@ -86,7 +89,7 @@ export default function NotificationsScreen() {
           renderItem={({ item }) => (
             <View style={styles.row}>
               <View style={styles.icon}>
-                <Ionicons name={item.icon} size={18} color={Colors.primary} />
+                <Ionicons name={item.icon} size={18} color={theme.primary} />
               </View>
               <View style={styles.rowMeta}>
                 <ThemedText type="smallBold" numberOfLines={1}>
@@ -107,63 +110,64 @@ export default function NotificationsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-  },
-  list: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  icon: {
-    width: 38,
-    height: 38,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rowMeta: {
-    flex: 1,
-    gap: 2,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.two,
-    padding: Spacing.four,
-  },
-  emptyBadge: {
-    width: 88,
-    height: 88,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.two,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+    },
+    list: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      flexGrow: 1,
+    },
+    row: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    icon: {
+      width: 38,
+      height: 38,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primarySubtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    rowMeta: {
+      flex: 1,
+      gap: 2,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.two,
+      padding: Spacing.four,
+    },
+    emptyBadge: {
+      width: 88,
+      height: 88,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: Spacing.two,
+    },
+    centered: {
+      textAlign: 'center',
+    },
+  });

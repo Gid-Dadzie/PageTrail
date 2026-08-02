@@ -15,11 +15,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookCard } from '@/components/book-card';
 import { ThemedText } from '@/components/themed-text';
 import { GENRES } from '@/constants/genres';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { Book, fetchTopCharts, searchBooks } from '@/services/books';
 
 export default function DiscoverScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
   const [term, setTerm] = useState('');
   const [debounced, setDebounced] = useState('');
@@ -52,16 +55,16 @@ export default function DiscoverScreen() {
                 setTerm('');
                 setDebounced('');
               }}>
-              <Ionicons name="arrow-back" size={20} color={Colors.text} />
+              <Ionicons name="arrow-back" size={20} color={theme.text} />
             </Pressable>
           ) : (
-            <Ionicons name="search" size={18} color={Colors.textTertiary} />
+            <Ionicons name="search" size={18} color={theme.textTertiary} />
           )}
           <TextInput
             value={term}
             onChangeText={setTerm}
             placeholder="Search books or authors"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={theme.textTertiary}
             style={styles.searchInput}
             autoCorrect={false}
             returnKeyType="search"
@@ -73,7 +76,7 @@ export default function DiscoverScreen() {
               accessibilityLabel="Clear search"
               hitSlop={Spacing.two}
               onPress={() => setTerm('')}>
-              <Ionicons name="close-circle" size={18} color={Colors.textTertiary} />
+              <Ionicons name="close-circle" size={18} color={theme.textTertiary} />
             </Pressable>
           ) : null}
         </View>
@@ -95,7 +98,7 @@ export default function DiscoverScreen() {
                   Browse public-domain classics you can read right in the app
                 </ThemedText>
               </View>
-              <Ionicons name="arrow-forward" size={18} color={Colors.onPrimary} />
+              <Ionicons name="arrow-forward" size={18} color={theme.onPrimary} />
             </Pressable>
 
             <View style={styles.section}>
@@ -125,7 +128,7 @@ export default function DiscoverScreen() {
                 Top Charts
               </ThemedText>
               {charts.loading ? (
-                <ActivityIndicator color={Colors.primary} style={styles.pad} />
+                <ActivityIndicator color={theme.primary} style={styles.pad} />
               ) : charts.data?.length ? (
                 <FlatList
                   horizontal
@@ -156,8 +159,10 @@ export default function DiscoverScreen() {
 }
 
 function SearchResults({ state }: { state: ReturnType<typeof useAsync<Book[]>> }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   if (state.loading) {
-    return <ActivityIndicator color={Colors.primary} style={styles.pad} />;
+    return <ActivityIndicator color={theme.primary} style={styles.pad} />;
   }
 
   if (state.error) {
@@ -189,98 +194,99 @@ function SearchResults({ state }: { state: ReturnType<typeof useAsync<Book[]>> }
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    paddingTop: Spacing.two,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  searchWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    marginHorizontal: Spacing.four,
-    paddingHorizontal: Spacing.three,
-    height: 46,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  searchInput: {
-    flex: 1,
-    color: Colors.text,
-    fontSize: 15,
-    height: '100%',
-  },
-  browse: {
-    gap: Spacing.four,
-    paddingBottom: Spacing.four,
-  },
-  freeBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    marginHorizontal: Spacing.four,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.primary,
-  },
-  freeBannerText: {
-    flex: 1,
-    gap: 2,
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  sectionTitle: {
-    paddingHorizontal: Spacing.four,
-  },
-  genreGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-  },
-  genreCard: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  rail: {
-    gap: Spacing.three,
-    paddingHorizontal: Spacing.four,
-  },
-  chartItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.one,
-  },
-  rank: {
-    width: 22,
-  },
-  resultGrid: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    gap: Spacing.three,
-  },
-  resultRow: {
-    gap: Spacing.three,
-  },
-  pad: {
-    padding: Spacing.four,
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      paddingTop: Spacing.two,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    searchWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+      marginHorizontal: Spacing.four,
+      paddingHorizontal: Spacing.three,
+      height: 46,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    searchInput: {
+      flex: 1,
+      color: c.text,
+      fontSize: 15,
+      height: '100%',
+    },
+    browse: {
+      gap: Spacing.four,
+      paddingBottom: Spacing.four,
+    },
+    freeBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+      marginHorizontal: Spacing.four,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.primary,
+    },
+    freeBannerText: {
+      flex: 1,
+      gap: 2,
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    sectionTitle: {
+      paddingHorizontal: Spacing.four,
+    },
+    genreGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+    },
+    genreCard: {
+      paddingHorizontal: Spacing.three,
+      paddingVertical: Spacing.two,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    rail: {
+      gap: Spacing.three,
+      paddingHorizontal: Spacing.four,
+    },
+    chartItem: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: Spacing.one,
+    },
+    rank: {
+      width: 22,
+    },
+    resultGrid: {
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      gap: Spacing.three,
+    },
+    resultRow: {
+      gap: Spacing.three,
+    },
+    pad: {
+      padding: Spacing.four,
+      textAlign: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

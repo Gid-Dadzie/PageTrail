@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { type ColorValue } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -26,16 +26,17 @@ function icon(active: IconName, inactive: IconName) {
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textTertiary,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textTertiary,
         tabBarStyle: {
-          backgroundColor: Colors.backgroundElement,
-          borderTopColor: Colors.border,
+          backgroundColor: theme.backgroundElement,
+          borderTopColor: theme.border,
           borderTopWidth: 1,
           // Add the real bottom inset so the bar clears the system navigation
           // bar under Android edge-to-edge (enabled by default in SDK 54);

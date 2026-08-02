@@ -7,9 +7,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { ScreenHeader } from '@/components/ui/screen-header';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { ThemeModeSelector, ThemeToggleButton } from '@/components/ui/theme-toggle';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
 import { genreBySlug } from '@/constants/genres';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { CoinEntry, subscribeToLedger } from '@/services/pagecoins';
 import { computeStats, ShelfEntry, subscribeToShelf } from '@/services/shelves';
 import { relativeTime } from '@/utils/format';
@@ -28,6 +30,7 @@ const REASON_COPY: Record<string, string> = {
 };
 
 export default function ProfileScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user, profile, signOut } = useAuth();
   const [entries, setEntries] = useState<ShelfEntry[]>([]);
   const [ledger, setLedger] = useState<CoinEntry[]>([]);
@@ -58,7 +61,9 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.headerBar}>
-        <ScreenHeader title="Profile" />
+        {/* One-tap light/dark next to the title; the full three-way control
+            (including "System") lives in the Appearance section below. */}
+        <ScreenHeader title="Profile" right={<ThemeToggleButton />} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -99,6 +104,11 @@ export default function ProfileScreen() {
           <RowLink href="/stats" icon="stats-chart-outline" label="Reading stats" />
           <RowLink href="/exchange" icon="swap-horizontal-outline" label="Exchange & listings" />
           <RowLink href="/notifications" icon="notifications-outline" label="Notifications" />
+        </View>
+
+        <View style={styles.section}>
+          <ThemedText type="defaultBold">Appearance</ThemedText>
+          <ThemeModeSelector />
         </View>
 
         {profile?.favouriteGenres?.length ? (
@@ -149,6 +159,7 @@ export default function ProfileScreen() {
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const styles = useThemedStyles(stylesheet);
   return (
     <View style={styles.stat}>
       <ThemedText type="subtitle">{value}</ThemedText>
@@ -168,116 +179,119 @@ function RowLink({
   icon: React.ComponentProps<typeof Ionicons>['name'];
   label: string;
 }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   return (
     <Link href={href as never} asChild>
       <Pressable
         accessibilityRole="button"
         style={({ pressed }) => [styles.rowLink, pressed && styles.pressed]}>
-        <Ionicons name={icon} size={20} color={Colors.primary} />
+        <Ionicons name={icon} size={20} color={theme.primary} />
         <ThemedText type="small" style={styles.rowLinkLabel}>
           {label}
         </ThemedText>
-        <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+        <Ionicons name="chevron-forward" size={16} color={theme.textTertiary} />
       </Pressable>
     </Link>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  headerBar: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  identity: {
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.two,
-  },
-  walletCard: {
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    gap: Spacing.two,
-  },
-  walletHint: {
-    lineHeight: 16,
-  },
-  statRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  links: {
-    gap: Spacing.two,
-  },
-  rowLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  rowLinkLabel: {
-    flex: 1,
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  genreWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.one,
-  },
-  genreTag: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySubtle,
-  },
-  ledgerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.two,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  ledgerMeta: {
-    gap: 2,
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    headerBar: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    identity: {
+      alignItems: 'center',
+      gap: Spacing.one,
+    },
+    avatar: {
+      width: 88,
+      height: 88,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 2,
+      borderColor: c.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: Spacing.two,
+    },
+    walletCard: {
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.primary,
+      gap: Spacing.two,
+    },
+    walletHint: {
+      lineHeight: 16,
+    },
+    statRow: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+    },
+    stat: {
+      flex: 1,
+      alignItems: 'center',
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    links: {
+      gap: Spacing.two,
+    },
+    rowLink: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.three,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    rowLinkLabel: {
+      flex: 1,
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    genreWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.one,
+    },
+    genreTag: {
+      paddingHorizontal: Spacing.two,
+      paddingVertical: Spacing.one,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primarySubtle,
+    },
+    ledgerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: Spacing.two,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    ledgerMeta: {
+      gap: 2,
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

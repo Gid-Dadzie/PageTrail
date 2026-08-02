@@ -1,7 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, type PressableProps } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Palette, Radius, Spacing } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -20,6 +21,8 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
 
   return (
     <Pressable
@@ -36,7 +39,7 @@ export function Button({
       ]}
       {...rest}>
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? Colors.onPrimary : Colors.text} />
+        <ActivityIndicator color={variant === 'primary' ? theme.onPrimary : theme.text} />
       ) : (
         <ThemedText
           type="defaultBold"
@@ -48,31 +51,32 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    height: 54,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.four,
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  primary: {
-    backgroundColor: Colors.primary,
-  },
-  secondary: {
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-  disabled: {
-    opacity: 0.45,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    base: {
+      height: 54,
+      borderRadius: Radius.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: Spacing.four,
+      flexDirection: 'row',
+      gap: Spacing.two,
+    },
+    primary: {
+      backgroundColor: c.primary,
+    },
+    secondary: {
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+    disabled: {
+      opacity: 0.45,
+    },
+  });

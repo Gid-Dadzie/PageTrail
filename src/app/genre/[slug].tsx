@@ -6,11 +6,14 @@ import { BookCard } from '@/components/book-card';
 import { ThemedText } from '@/components/themed-text';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { genreBySlug } from '@/constants/genres';
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Spacing } from '@/constants/theme';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { fetchBooksByGenre } from '@/services/books';
 
 export default function GenreScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const genre = genreBySlug(slug);
 
@@ -27,7 +30,7 @@ export default function GenreScreen() {
         </View>
 
         {books.loading ? (
-          <ActivityIndicator color={Colors.primary} style={styles.pad} />
+          <ActivityIndicator color={theme.primary} style={styles.pad} />
         ) : books.error ? (
           <ThemedText type="small" themeColor="danger" style={styles.pad}>
             {books.error}
@@ -53,31 +56,32 @@ export default function GenreScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.two,
-  },
-  grid: {
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    gap: Spacing.three,
-  },
-  row: {
-    gap: Spacing.three,
-  },
-  pad: {
-    padding: Spacing.four,
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+      paddingTop: Spacing.two,
+    },
+    grid: {
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      gap: Spacing.three,
+    },
+    row: {
+      gap: Spacing.three,
+    },
+    pad: {
+      padding: Spacing.four,
+      textAlign: 'center',
+    },
+  });

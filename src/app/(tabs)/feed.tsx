@@ -7,12 +7,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BookCover } from '@/components/book-cover';
 import { ThemedText } from '@/components/themed-text';
 import { StarRating } from '@/components/ui/star-rating';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { Post, subscribeToFeed, toggleLike } from '@/services/feed';
 import { relativeTime } from '@/utils/format';
 
 export default function FeedScreen() {
+  const styles = useThemedStyles(stylesheet);
   const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +70,8 @@ const KIND_COPY: Record<Post['kind'], string> = {
 };
 
 function PostCard({ post, viewerId }: { post: Post; viewerId: string }) {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const liked = post.likedBy.includes(viewerId);
 
   const handleLike = () => {
@@ -125,7 +129,7 @@ function PostCard({ post, viewerId }: { post: Post; viewerId: string }) {
           <Ionicons
             name={liked ? 'heart' : 'heart-outline'}
             size={18}
-            color={liked ? Colors.danger : Colors.textSecondary}
+            color={liked ? theme.danger : theme.textSecondary}
           />
           <ThemedText type="caption" themeColor="textSecondary">
             {post.likedBy.length}
@@ -133,7 +137,7 @@ function PostCard({ post, viewerId }: { post: Post; viewerId: string }) {
         </Pressable>
 
         <View style={styles.action}>
-          <Ionicons name="chatbubble-outline" size={16} color={Colors.textSecondary} />
+          <Ionicons name="chatbubble-outline" size={16} color={theme.textSecondary} />
           <ThemedText type="caption" themeColor="textSecondary">
             {post.commentCount}
           </ThemedText>
@@ -143,82 +147,83 @@ function PostCard({ post, viewerId }: { post: Post; viewerId: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    gap: Spacing.three,
-    paddingTop: Spacing.two,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  header: {
-    paddingHorizontal: Spacing.four,
-  },
-  list: {
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.four,
-    flexGrow: 1,
-  },
-  card: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  cardHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.primarySubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardHeadMeta: {
-    flex: 1,
-  },
-  bookRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    padding: Spacing.two,
-    borderRadius: Radius.sm,
-    backgroundColor: Colors.background,
-  },
-  bookMeta: {
-    flex: 1,
-    gap: Spacing.one,
-    justifyContent: 'center',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: Spacing.four,
-    paddingTop: Spacing.one,
-  },
-  action: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.two,
-    padding: Spacing.four,
-  },
-  emptyText: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+      gap: Spacing.three,
+      paddingTop: Spacing.two,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    header: {
+      paddingHorizontal: Spacing.four,
+    },
+    list: {
+      gap: Spacing.two,
+      paddingHorizontal: Spacing.four,
+      paddingBottom: Spacing.four,
+      flexGrow: 1,
+    },
+    card: {
+      gap: Spacing.two,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    cardHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+    },
+    avatar: {
+      width: 34,
+      height: 34,
+      borderRadius: Radius.pill,
+      backgroundColor: c.primarySubtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cardHeadMeta: {
+      flex: 1,
+    },
+    bookRow: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+      padding: Spacing.two,
+      borderRadius: Radius.sm,
+      backgroundColor: c.background,
+    },
+    bookMeta: {
+      flex: 1,
+      gap: Spacing.one,
+      justifyContent: 'center',
+    },
+    actions: {
+      flexDirection: 'row',
+      gap: Spacing.four,
+      paddingTop: Spacing.one,
+    },
+    action: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.one,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.two,
+      padding: Spacing.four,
+    },
+    emptyText: {
+      textAlign: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

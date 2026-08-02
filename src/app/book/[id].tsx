@@ -13,9 +13,10 @@ import { ProgressBar } from '@/components/ui/progress-bar';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { StarRating } from '@/components/ui/star-rating';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme, useThemedStyles } from '@/hooks/use-theme';
 import { Book, fetchBookById, fetchRelatedBooks } from '@/services/books';
 import { findReadableEdition } from '@/services/reading';
 import { discountSummary, purchaseOptions } from '@/services/commerce';
@@ -35,6 +36,8 @@ import {
 const SHELVES: ShelfStatus[] = ['wantToRead', 'reading', 'read'];
 
 export default function BookDetailScreen() {
+  const theme = useTheme();
+  const styles = useThemedStyles(stylesheet);
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user, profile } = useAuth();
@@ -75,7 +78,7 @@ export default function BookDetailScreen() {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScreenHeader />
-        <ActivityIndicator color={Colors.primary} style={styles.pad} />
+        <ActivityIndicator color={theme.primary} style={styles.pad} />
       </SafeAreaView>
     );
   }
@@ -228,7 +231,9 @@ export default function BookDetailScreen() {
               style={[styles.shelfButton, entry?.status === status && styles.shelfButtonActive]}>
               <ThemedText
                 type="caption"
-                themeColor={entry?.status === status ? 'onPrimary' : 'text'}>
+                themeColor={entry?.status === status ? 'onPrimary' : 'text'}
+                numberOfLines={2}
+                style={styles.shelfLabel}>
                 {SHELF_LABELS[status]}
               </ThemedText>
             </Pressable>
@@ -287,11 +292,11 @@ export default function BookDetailScreen() {
               accessibilityRole="link"
               onPress={() => openBuyLink(option.url)}
               style={({ pressed }) => [styles.retailerRow, pressed && styles.pressed]}>
-              <Ionicons name="cart-outline" size={18} color={Colors.primary} />
+              <Ionicons name="cart-outline" size={18} color={theme.primary} />
               <ThemedText type="small" style={styles.flex}>
                 {option.retailer.name}
               </ThemedText>
-              <Ionicons name="open-outline" size={15} color={Colors.textTertiary} />
+              <Ionicons name="open-outline" size={15} color={theme.textTertiary} />
             </Pressable>
           ))}
 
@@ -378,110 +383,126 @@ export default function BookDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.four,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-  },
-  padded: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
-  hero: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-  },
-  heroMeta: {
-    flex: 1,
-    gap: Spacing.one,
-    justifyContent: 'center',
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  shelfRow: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  shelfButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: Spacing.two,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.backgroundElement,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  shelfButtonActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  card: {
-    gap: Spacing.two,
-    padding: Spacing.three,
-    borderRadius: Radius.md,
-    backgroundColor: Colors.backgroundElement,
-  },
-  cardHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  progressInput: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: Spacing.two,
-  },
-  flex: {
-    flex: 1,
-  },
-  retailerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    paddingVertical: Spacing.two,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  discountRow: {
-    alignItems: 'center',
-    paddingTop: Spacing.two,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  section: {
-    gap: Spacing.two,
-  },
-  tagWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.one,
-  },
-  tag: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: Radius.pill,
-    backgroundColor: Colors.background,
-  },
-  rail: {
-    gap: Spacing.three,
-  },
-  pad: {
-    padding: Spacing.four,
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.75,
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.four,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+    },
+    padded: {
+      padding: Spacing.four,
+      gap: Spacing.three,
+    },
+    hero: {
+      flexDirection: 'row',
+      gap: Spacing.three,
+    },
+    heroMeta: {
+      flex: 1,
+      gap: Spacing.one,
+      justifyContent: 'center',
+    },
+    ratingRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.one,
+    },
+    shelfRow: {
+      flexDirection: 'row',
+      gap: Spacing.two,
+      // Every pill matches the tallest, so the group keeps a flat baseline when
+      // a longer label ("Currently Reading") wraps to two lines.
+      alignItems: 'stretch',
+    },
+    shelfButton: {
+      // Equal thirds regardless of label length, and `basis: 0` so the widths
+      // are driven by the row rather than by the text each one happens to hold.
+      flex: 1,
+      flexBasis: 0,
+      alignItems: 'center',
+      justifyContent: 'center',
+      // Keeps a single-line pill from collapsing below the 44pt tap target.
+      minHeight: 44,
+      paddingVertical: Spacing.two,
+      paddingHorizontal: Spacing.two,
+      borderRadius: Radius.pill,
+      backgroundColor: c.backgroundElement,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    shelfLabel: {
+      // `alignItems` only centres the text *box*, which fills the pill once the
+      // label wraps — the lines themselves need this to sit centred.
+      textAlign: 'center',
+    },
+    shelfButtonActive: {
+      backgroundColor: c.primary,
+      borderColor: c.primary,
+    },
+    card: {
+      gap: Spacing.two,
+      padding: Spacing.three,
+      borderRadius: Radius.md,
+      backgroundColor: c.backgroundElement,
+    },
+    cardHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    progressInput: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: Spacing.two,
+    },
+    flex: {
+      flex: 1,
+    },
+    retailerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.two,
+      paddingVertical: Spacing.two,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    discountRow: {
+      alignItems: 'center',
+      paddingTop: Spacing.two,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    disabled: {
+      opacity: 0.6,
+    },
+    section: {
+      gap: Spacing.two,
+    },
+    tagWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.one,
+    },
+    tag: {
+      paddingHorizontal: Spacing.two,
+      paddingVertical: Spacing.one,
+      borderRadius: Radius.pill,
+      backgroundColor: c.background,
+    },
+    rail: {
+      gap: Spacing.three,
+    },
+    pad: {
+      padding: Spacing.four,
+      textAlign: 'center',
+    },
+    pressed: {
+      opacity: 0.75,
+    },
+  });

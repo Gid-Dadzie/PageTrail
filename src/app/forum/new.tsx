@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { TextField } from '@/components/ui/text-field';
-import { Colors, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemedStyles } from '@/hooks/use-theme';
 import { createThread, FORUM_CATEGORIES, ForumCategory } from '@/services/forum';
 import { COIN_REWARDS, earnCoins } from '@/services/pagecoins';
 
 export default function NewThreadScreen() {
+  const styles = useThemedStyles(stylesheet);
   const router = useRouter();
   const { user, profile } = useAuth();
 
@@ -113,40 +115,41 @@ export default function NewThreadScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-  },
-  flex: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-    width: '100%',
-    maxWidth: MaxContentWidth,
-    alignSelf: 'center',
-    flexGrow: 1,
-  },
-  field: {
-    gap: Spacing.two,
-  },
-  categories: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-  },
-  bodyBox: {
-    minHeight: 120,
-  },
-  bodyInput: {
-    minHeight: 96,
-    textAlignVertical: 'top',
-  },
-  spacer: {
-    flex: 1,
-  },
-  reward: {
-    textAlign: 'center',
-  },
-});
+const stylesheet = (c: Palette) =>
+  StyleSheet.create({
+    safe: {
+      flex: 1,
+    },
+    flex: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.four,
+      gap: Spacing.three,
+      width: '100%',
+      maxWidth: MaxContentWidth,
+      alignSelf: 'center',
+      flexGrow: 1,
+    },
+    field: {
+      gap: Spacing.two,
+    },
+    categories: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: Spacing.two,
+    },
+    bodyBox: {
+      minHeight: 120,
+    },
+    bodyInput: {
+      minHeight: 96,
+      textAlignVertical: 'top',
+    },
+    spacer: {
+      flex: 1,
+    },
+    reward: {
+      textAlign: 'center',
+    },
+  });

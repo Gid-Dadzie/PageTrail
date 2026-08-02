@@ -8,6 +8,7 @@ import { ReaderView } from '@/components/reader-view';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
+import { useThemeMode } from '@/context/theme-context';
 import { useAsync } from '@/hooks/use-async';
 import { fetchBookById } from '@/services/books';
 import {
@@ -32,7 +33,11 @@ export default function ReaderScreen() {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [themeName, setThemeName] = useState<ReaderThemeName>('dark');
+  // The reader keeps its own themes (it adds sepia, and readers often want the
+  // page to differ from the app chrome), but it should *open* matching the app
+  // rather than always dark. Switching it here is per-session, by design.
+  const { scheme } = useThemeMode();
+  const [themeName, setThemeName] = useState<ReaderThemeName>(scheme);
   const [fontIndex, setFontIndex] = useState(DEFAULT_FONT_INDEX);
   const [showControls, setShowControls] = useState(false);
 
@@ -54,11 +59,12 @@ export default function ReaderScreen() {
     }
 
     const text = await fetchReadableText(edition, signal);
-    // Built once with the defaults; theme/font changes are pushed in live.
+    // Built once with the theme the reader opened on, so the first paint
+    // matches; later theme/font changes are pushed in live instead of rebuilt.
     const html = buildReaderDocument(text, {
       title: book.title,
       author: book.authors.join(', '),
-      theme: READER_THEMES.dark,
+      theme: READER_THEMES[scheme],
       fontPx: READER_FONT_SIZES[DEFAULT_FONT_INDEX],
     });
     return { book, html, url: '' };
