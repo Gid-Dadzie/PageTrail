@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { WebView } from 'react-native-webview';
 
-import type { ReaderTheme } from '@/services/reading';
+import { parseReaderMessage, type ReaderTheme } from '@/services/reading';
 
 export type ReaderViewProps = {
   /**
@@ -18,6 +18,8 @@ export type ReaderViewProps = {
   fontPx: number;
   /** Reading position, 0..1, reported as the reader scrolls. */
   onProgress: (fraction: number) => void;
+  /** A short phrase the reader highlighted, with the sentence it came from. */
+  onLookup?: (word: string, context: string) => void;
 };
 
 /** JS that repaints the document's CSS variables — no reload, keeps the place. */
@@ -38,7 +40,7 @@ function applyStyleJs(theme: ReaderTheme, fontPx: number): string {
  * `window.ReactNativeWebView.postMessage`; theme and font changes are pushed in
  * imperatively so the reader keeps its scroll position.
  */
-export function ReaderView({ html, theme, fontPx, onProgress }: ReaderViewProps) {
+export function ReaderView({ html, theme, fontPx, onProgress, onLookup }: ReaderViewProps) {
   const ref = useRef<WebView>(null);
 
   useEffect(() => {
@@ -54,8 +56,9 @@ export function ReaderView({ html, theme, fontPx, onProgress }: ReaderViewProps)
       onLoadEnd={() => ref.current?.injectJavaScript(applyStyleJs(theme, fontPx))}
       style={{ flex: 1, backgroundColor: theme.bg }}
       onMessage={(event) => {
-        const fraction = parseFloat(event.nativeEvent.data);
-        if (!Number.isNaN(fraction)) onProgress(fraction);
+        const message = parseReaderMessage(event.nativeEvent.data);
+        if (message?.type === 'progress') onProgress(message.value);
+        else if (message?.type === 'lookup') onLookup?.(message.word, message.context);
       }}
     />
   );

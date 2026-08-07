@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import type { ReaderTheme } from '@/services/reading';
+import { parseReaderMessage, type ReaderTheme } from '@/services/reading';
 
 export type ReaderViewProps = {
   /** Self-contained HTML document; used when no direct `url` is given. */
@@ -16,19 +16,25 @@ export type ReaderViewProps = {
   fontPx: number;
   /** Reading position, 0..1. Only reported for the themed `html` document. */
   onProgress: (fraction: number) => void;
+  /**
+   * A short phrase the reader highlighted. Like progress, this only arrives from
+   * our own themed document — a cross-origin iframe keeps its selection to itself.
+   */
+  onLookup?: (word: string, context: string) => void;
 };
 
-export function ReaderView({ html, url, theme, onProgress }: ReaderViewProps) {
+export function ReaderView({ html, url, theme, onProgress, onLookup }: ReaderViewProps) {
   useEffect(() => {
-    // Progress only arrives from our own themed document (srcDoc); a cross-origin
+    // Messages only arrive from our own themed document (srcDoc); a cross-origin
     // iframe (url) cannot post back, so this simply stays idle in that case.
     const handler = (event: MessageEvent) => {
-      const fraction = (event.data as { pagetrailScroll?: number })?.pagetrailScroll;
-      if (typeof fraction === 'number') onProgress(fraction);
+      const message = parseReaderMessage((event.data as { pagetrail?: unknown })?.pagetrail);
+      if (message?.type === 'progress') onProgress(message.value);
+      else if (message?.type === 'lookup') onLookup?.(message.word, message.context);
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [onProgress]);
+  }, [onProgress, onLookup]);
 
   const frameProps = url ? { src: url } : { srcDoc: html };
 

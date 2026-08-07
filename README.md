@@ -38,7 +38,7 @@ src/
   app/                    file-based routes (expo-router)
     (auth)/               welcome, sign-in, sign-up, forgot-password
     (onboarding)/         gender, age, genres, profile
-    (tabs)/               home, discover, shelves, feed, forum, profile
+    (tabs)/               home, discover, shelves, words, feed, forum, profile
     forum/[id]            discussion thread: original post + threaded replies
     forum/new             start a new discussion
     book/[id]             book detail: shelving, progress, rating, buy links
@@ -70,6 +70,14 @@ reach `(auth)`, signed-in users who have not finished onboarding only reach
   and it runs in Expo Go. In-copyright books are not readable in-app (that needs publisher
   licensing + DRM); they keep their buy/borrow links. Opening the reader adds the book to
   "Currently Reading" and scroll position is written back as reading progress.
+- **Highlight-to-define, backed by a dictionary rather than a language model.**
+  Highlighting a short phrase in the reader pops its definition (`components/definition-panel`),
+  and saved words collect in the Words tab. Definitions come from the keyless Free Dictionary
+  API (Wiktionary data, CC BY-SA), which keeps the app serverless and key-free like Open
+  Library and Gutendex; an LLM would need a paid key and a proxy to hide it, for an answer a
+  dictionary already gives verbatim. Wiktionary carries most inflected forms, and
+  `services/dictionary.ts` falls back through simple de-inflections ("hurrying" → "hurry")
+  when it doesn't, saying so in the panel when it had to.
 - **Dark-only theme.** The supplied mockups are dark-only, so `constants/theme.ts` defines
   a single palette rather than a speculative light counterpart.
 - **Password reset uses a real email link**, not the mockups' 4-digit OTP: Firebase issues

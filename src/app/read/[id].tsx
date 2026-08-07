@@ -1,15 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { DefinitionPanel } from '@/components/definition-panel';
 import { ReaderView } from '@/components/reader-view';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
 import { useThemeMode } from '@/context/theme-context';
 import { useAsync } from '@/hooks/use-async';
+import { useTheme } from '@/hooks/use-theme';
 import { fetchBookById } from '@/services/books';
 import {
   buildReaderDocument,
@@ -37,9 +39,16 @@ export default function ReaderScreen() {
   // page to differ from the app chrome), but it should *open* matching the app
   // rather than always dark. Switching it here is per-session, by design.
   const { scheme } = useThemeMode();
+  const appTheme = useTheme();
   const [themeName, setThemeName] = useState<ReaderThemeName>(scheme);
   const [fontIndex, setFontIndex] = useState(DEFAULT_FONT_INDEX);
   const [showControls, setShowControls] = useState(false);
+
+  // Highlighting a word offers its definition. On by default — it's the reason
+  // the reader would highlight one word — but switchable, because a reader
+  // copying quotations doesn't want a sheet every time.
+  const [lookupOnHighlight, setLookupOnHighlight] = useState(true);
+  const [lookup, setLookup] = useState<{ word: string; context: string } | null>(null);
 
   const theme = READER_THEMES[themeName];
   const fontPx = READER_FONT_SIZES[fontIndex];
@@ -107,6 +116,14 @@ export default function ReaderScreen() {
     progressRef.current = fraction;
     setProgress(fraction);
   }, []);
+
+  const handleLookup = useCallback(
+    (word: string, context: string) => {
+      if (!lookupOnHighlight) return;
+      setLookup({ word, context });
+    },
+    [lookupOnHighlight]
+  );
 
   // Persist reading position once, on the way out.
   useEffect(() => {
@@ -207,6 +224,7 @@ export default function ReaderScreen() {
             theme={theme}
             fontPx={fontPx}
             onProgress={handleProgress}
+            onLookup={handleLookup}
           />
         ) : (
           <View style={styles.center}>
@@ -277,9 +295,79 @@ export default function ReaderScreen() {
                 })}
               </View>
             </View>
+
+            <View style={[styles.controlRow, { borderTopColor: theme.border, borderTopWidth: 1 }]}>
+              <View style={styles.controlLabel}>
+                <ThemedText type="caption" style={{ color: theme.muted }}>
+                  Look up on highlight
+                </ThemedText>
+                <ThemedText type="caption" style={{ color: theme.muted, opacity: 0.7 }}>
+                  Select a word to see what it means
+                </ThemedText>
+              </View>
+              <Pressable
+                accessibilityRole="switch"
+                accessibilityLabel="Look up highlighted words"
+                accessibilityState={{ checked: lookupOnHighlight }}
+                onPress={() => setLookupOnHighlight((on) => !on)}
+                style={({ pressed }) => [
+                  styles.toggle,
+                  {
+                    backgroundColor: lookupOnHighlight ? theme.accent : theme.bg,
+                    borderColor: lookupOnHighlight ? theme.accent : theme.border,
+                  },
+                  pressed && styles.pressed,
+                ]}>
+                <View
+                  style={[
+                    styles.toggleKnob,
+                    {
+                      backgroundColor: lookupOnHighlight ? theme.bg : theme.muted,
+                      alignSelf: lookupOnHighlight ? 'flex-end' : 'flex-start',
+                    },
+                  ]}
+                />
+              </Pressable>
+            </View>
           </View>
         </SafeAreaView>
       ) : null}
+
+      {/* Definition sheet. Painted in app chrome rather than the page's reading
+          theme, the way a system look-up panel sits above the text it explains. */}
+      <Modal
+        visible={!!lookup}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setLookup(null)}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Dismiss definition"
+          style={styles.scrim}
+          onPress={() => setLookup(null)}
+        />
+        <View
+          style={[
+            styles.sheet,
+            { backgroundColor: appTheme.backgroundElement, borderTopColor: appTheme.border },
+          ]}>
+          <SafeAreaView edges={['bottom']}>
+            <View style={styles.sheetInner}>
+              {lookup ? (
+                <DefinitionPanel
+                  word={lookup.word}
+                  source={{
+                    context: lookup.context,
+                    bookId: book?.id ?? '',
+                    bookTitle: book?.title ?? '',
+                  }}
+                  onClose={() => setLookup(null)}
+                />
+              ) : null}
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -377,6 +465,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
+  },
+  controlLabel: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  toggle: {
+    width: 48,
+    height: 28,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    padding: 3,
+    justifyContent: 'center',
+  },
+  toggleKnob: {
+    width: 20,
+    height: 20,
+    borderRadius: Radius.pill,
+  },
+  scrim: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  sheet: {
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    borderTopWidth: 1,
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+  },
+  sheetInner: {
+    padding: Spacing.four,
   },
   fontButtons: {
     flexDirection: 'row',

@@ -192,6 +192,30 @@ export default function BookDetailScreen() {
   const discount = discountSummary(profile?.coins ?? 0);
   const pct = entry && data.pageCount > 0 ? entry.progress / data.pageCount : 0;
 
+  /**
+   * What the free-read slot offers.
+   *
+   * Open Library's public-domain flag arrives *with* the book, so for those the
+   * slot is committed to on first paint and only its contents resolve: `pending`
+   * while Gutendex is asked, then `inApp` if it named an edition or `external`
+   * if it didn't — most public-domain works here are omnibus or non-English
+   * editions Gutenberg has no match for, and those are still free to read on
+   * Open Library's own scan. So the slot never appears or vanishes under the
+   * reader's thumb; it only ever settles.
+   *
+   * Books Open Library doesn't flag get no placeholder — promising a free read
+   * we can't deliver would be worse than the button arriving late.
+   */
+  const freeRead: 'pending' | 'inApp' | 'external' | 'none' = readable.loading
+    ? data.freeToRead
+      ? 'pending'
+      : 'none'
+    : readable.data
+      ? 'inApp'
+      : data.freeToRead
+        ? 'external'
+        : 'none';
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -240,10 +264,18 @@ export default function BookDetailScreen() {
           ))}
         </View>
 
-        {readable.data ? (
+        {freeRead === 'pending' ? (
+          <Button label="Read now · Free" pending onPress={() => {}} />
+        ) : freeRead === 'inApp' ? (
           <Button
             label="Read now · Free"
             onPress={() => router.push({ pathname: '/read/[id]', params: { id: data.id } })}
+          />
+        ) : freeRead === 'external' ? (
+          <Button
+            label="Read free on Open Library"
+            variant="secondary"
+            onPress={() => openBuyLink(`https://openlibrary.org/works/${data.id}`)}
           />
         ) : null}
 

@@ -183,6 +183,50 @@ export const READER_THEMES: Record<ReaderThemeName, ReaderTheme> = {
 /** Font sizes the reader steps through, in px. */
 export const READER_FONT_SIZES = [16, 18, 20, 22, 24, 27];
 
+/** Everything the reader document tells the host about. */
+export type ReaderMessage =
+  | { type: 'progress'; value: number }
+  /** The reader highlighted a short phrase and may want it defined. */
+  | { type: 'lookup'; word: string; context: string };
+
+/**
+ * Decodes a message from the reader document.
+ *
+ * Both surfaces route through here: the native WebView hands over a JSON string
+ * from `postMessage`, while on web the browser has already structured-cloned it
+ * into an object. Anything unrecognised yields `null` — a page can post whatever
+ * it likes, and on web `window` also carries unrelated traffic.
+ */
+export function parseReaderMessage(data: unknown): ReaderMessage | null {
+  let payload = data;
+
+  if (typeof payload === 'string') {
+    try {
+      payload = JSON.parse(payload);
+    } catch {
+      return null;
+    }
+  }
+
+  if (!payload || typeof payload !== 'object') return null;
+  const message = payload as Record<string, unknown>;
+
+  if (message.type === 'progress' && typeof message.value === 'number') {
+    if (Number.isNaN(message.value)) return null;
+    return { type: 'progress', value: message.value };
+  }
+
+  if (message.type === 'lookup' && typeof message.word === 'string' && message.word) {
+    return {
+      type: 'lookup',
+      word: message.word,
+      context: typeof message.context === 'string' ? message.context : '',
+    };
+  }
+
+  return null;
+}
+
 export type ReaderDocOptions = {
   title: string;
   author: string;
@@ -323,21 +367,72 @@ export function buildReaderDocument(rawText: string, opts: ReaderDocOptions): st
   ${content}
 <script>
   (function () {
-    function report() {
-      var el = document.documentElement;
-      var max = el.scrollHeight - el.clientHeight;
-      var pct = max > 0 ? el.scrollTop / max : 0;
+    function send(payload) {
       if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(String(pct));
+        window.ReactNativeWebView.postMessage(JSON.stringify(payload));
       } else if (window.parent) {
-        window.parent.postMessage({ pagetrailScroll: pct }, '*');
+        window.parent.postMessage({ pagetrail: payload }, '*');
       }
     }
+
+    function reportScroll() {
+      var el = document.documentElement;
+      var max = el.scrollHeight - el.clientHeight;
+      send({ type: 'progress', value: max > 0 ? el.scrollTop / max : 0 });
+    }
+
     var ticking = false;
     document.addEventListener('scroll', function () {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(function () { report(); ticking = false; });
+      requestAnimationFrame(function () { reportScroll(); ticking = false; });
+    }, { passive: true });
+
+    /* The sentence the highlight sits in, so the host can show the word in the
+       context it was met — pulled from the enclosing block, not the whole page. */
+    function contextFor(selection, phrase) {
+      var node = selection.anchorNode;
+      var element = node && (node.nodeType === 1 ? node : node.parentElement);
+      var block = element && element.closest ? element.closest('p, h2, li') : null;
+      var text = (block && block.textContent) || '';
+      var at = text.indexOf(phrase);
+      if (at < 0) return '';
+
+      var from = 0;
+      for (var i = at - 1; i >= 0; i--) {
+        var before = text.charAt(i);
+        if (before === '.' || before === '!' || before === '?') { from = i + 1; break; }
+      }
+      var to = text.length;
+      for (var j = at + phrase.length; j < text.length; j++) {
+        var after = text.charAt(j);
+        if (after === '.' || after === '!' || after === '?') { to = j + 1; break; }
+      }
+      return text.slice(from, to).replace(/\\s+/g, ' ').trim().slice(0, 240);
+    }
+
+    var lastSent = '';
+
+    function reportSelection() {
+      var selection = document.getSelection();
+      if (!selection || selection.isCollapsed) { lastSent = ''; return; }
+
+      var phrase = selection.toString().replace(/\\s+/g, ' ').trim();
+      /* A long highlight means the reader is copying a passage, not asking what
+         a word means, so only short phrases are offered for lookup. */
+      if (!phrase || phrase.length > 40 || phrase.split(' ').length > 3) return;
+      if (!/[A-Za-z]/.test(phrase) || phrase === lastSent) return;
+
+      lastSent = phrase;
+      send({ type: 'lookup', word: phrase, context: contextFor(selection, phrase) });
+    }
+
+    /* Debounced: 'selectionchange' fires continuously while a selection handle is
+       being dragged, and we only want the word the reader settled on. */
+    var pending = null;
+    document.addEventListener('selectionchange', function () {
+      if (pending) clearTimeout(pending);
+      pending = setTimeout(reportSelection, 400);
     }, { passive: true });
   })();
 </script>

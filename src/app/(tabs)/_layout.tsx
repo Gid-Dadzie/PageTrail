@@ -46,8 +46,13 @@ export default function TabsLayout() {
           paddingTop: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          // 10px, and no per-item padding: seven tabs leaves ~50dp each on a
+          // small phone, which is where "Discover" starts to truncate.
+          fontSize: 10,
           fontWeight: '600',
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 0,
         },
       }}>
       <Tabs.Screen
@@ -61,6 +66,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="shelves"
         options={{ title: 'Shelves', tabBarIcon: icon('library', 'library-outline') }}
+      />
+      <Tabs.Screen
+        name="words"
+        options={{ title: 'Words', tabBarIcon: icon('language', 'language-outline') }}
       />
       <Tabs.Screen
         name="feed"

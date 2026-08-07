@@ -31,6 +31,12 @@ service cloud.firestore {
         allow read, write: if isSelf(userId);
       }
 
+      // Looked-up words are private too — a word list is a record of what its
+      // owner didn't know, which is nobody else's business.
+      match /vocabulary/{wordId} {
+        allow read, write: if isSelf(userId);
+      }
+
       // The ledger is append-only: entries may be created but never rewritten,
       // so a balance always remains explainable from its history.
       match /coinLedger/{entryId} {

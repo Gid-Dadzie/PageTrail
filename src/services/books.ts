@@ -26,6 +26,7 @@ const SEARCH_FIELDS = [
   'publisher',
   'ratings_average',
   'ratings_count',
+  'ebook_access',
 ].join(',');
 
 export type Book = {
@@ -42,6 +43,13 @@ export type Book = {
   averageRating: number;
   ratingsCount: number;
   isbn: string;
+  /**
+   * Open Library says the full text is freely readable (`ebook_access:public`),
+   * i.e. public domain. Known the moment the book loads, unlike a Gutenberg
+   * match — which is what lets the book screen commit to a "Read now" button
+   * before it has confirmed an edition to serve.
+   */
+  freeToRead: boolean;
 };
 
 type SearchDoc = {
@@ -56,6 +64,8 @@ type SearchDoc = {
   publisher?: string[];
   ratings_average?: number;
   ratings_count?: number;
+  /** One of `no_ebook`, `printdisabled`, `borrowable`, `public`. */
+  ebook_access?: string;
 };
 
 export function coverUrlForId(coverId: number | undefined, size: 'M' | 'L' = 'L'): string {
@@ -86,6 +96,7 @@ function toBook(doc: SearchDoc): Book {
     averageRating: doc.ratings_average ?? 0,
     ratingsCount: doc.ratings_count ?? 0,
     isbn: doc.isbn?.[0] ?? '',
+    freeToRead: doc.ebook_access === 'public',
   };
 }
 
@@ -181,6 +192,7 @@ export async function fetchBookById(id: string, signal?: AbortSignal): Promise<B
     averageRating: 0,
     ratingsCount: 0,
     isbn: '',
+    freeToRead: false,
   };
 
   return {
